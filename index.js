@@ -1,57 +1,49 @@
+// setup the server
 const express = require("express");
-const dotenv = require("dotenv").config();
+// will allow you to read environment variables from .env file
+const dotenv = require("dotenv").config()
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
-
-const userRoutes = require("./routes/user.routes");
-const postRoutes = require("./routes/post.routes");
+const cookieParser = require("cookie-parser")
+const userRoutes = require("./routes/user.routes")
+const postRoutes = require("./routes/post.routes")
 const profileRoutes = require("./routes/profile.routes");
-const commentRoutes = require("./routes/comment.routes");
-
+const CommentRoutes = require("./routes/comment.routes")
 const app = express();
 
-/* 🔥 REQUIRED FOR VERSEL + COOKIES */
-app.set("trust proxy", 1);
-
-/* ✅ CORS CONFIG */
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://frontend-vgi4.vercel.app"
-];
-
+// application-level middleware
+// parse the req.body back to json
+// middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+    origin: "https://frontend-vgi4.vercel.app",
+    credentials: true
 }));
 
-app.options("*", cors());
-
-/* MIDDLEWARE */
 app.use(express.json());
 app.use(cookieParser());
+// mongodb -> connection string
 
-/* DB */
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log("Connected to MONGODB"))
-  .catch((err) => console.log("err", err.message));
+.then(() => {
+    console.log("Connected to MONGODB")
+}).catch((err) => console.log("err", err.message))
 
-/* ROUTES */
-app.use("/api", userRoutes);
-app.use("/api", postRoutes);
-app.use("/api", profileRoutes);
-app.use("/api", commentRoutes);
+// api
+
+app.use("/api", userRoutes)
+app.use("/api", postRoutes)
+app.use("/api", profileRoutes)
+app.use("/api", CommentRoutes)
 
 app.get("/", (req, res) => {
-  res.send("<h1>LinkedIn Backend Project!</h1>");
-});
+    return res.send("<h1>Linkedin Backend Project!</h1>")
+})
+// register -> (POST) http://localhost:4000/api/register
 
-module.exports = app;
+// server-> http://localhost:4000
+
+module.exports = app
+
+// app.listen(process.env.PORT, () => {
+//     console.log("Server is running on port ", process.env.PORT)
+// })

@@ -22,7 +22,6 @@ const userSchema = new mongoose.Schema(
     },
     lastLogin: {
       type: Date
-      
     }
   },
   {

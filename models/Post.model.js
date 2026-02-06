@@ -19,11 +19,12 @@ const postSchema = new mongoose.Schema(
       required:true
     },
     //storing the user id who liked the post
-    likes: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-    
-    },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+      }
+    ],
     numberOfComments: {
       type: Number,
       default: 0
