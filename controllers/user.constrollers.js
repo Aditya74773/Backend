@@ -45,15 +45,25 @@ const signup = async (req, res) => {
         });
 
     } catch (err) {
-        console.log("err", err.message);
-        return res.status(500).json({ message: "Server error" });
+        console.error("SIGNUP ERROR:", err.message);
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 
 // signin controller
 const signin = async (req, res) => {
     try {
+        // Validate environment variables
+        if (!process.env.JWT_SECRET_KEY) {
+            console.error("JWT_SECRET_KEY is not set in environment variables");
+            return res.status(500).json({ message: "Server configuration error" });
+        }
+
         const { email, password } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
 
         const user = await User.findOne({ email });
         if (!user) {
@@ -74,7 +84,6 @@ const signin = async (req, res) => {
         console.log("Generated Token:", token);
         res.cookie("access_token", token, {httpOnly: true});
 
-
         const loginTime = new Date();
         user.lastLogin = loginTime;
         await user.save();
@@ -85,8 +94,8 @@ const signin = async (req, res) => {
         });
 
     } catch (err) {
-        console.log("err", err.message);
-        return res.status(500).json({ message: "Server error" });
+        console.error("SIGNIN ERROR:", err.message);
+        return res.status(500).json({ message: "Server error", error: err.message });
     }
 };
 

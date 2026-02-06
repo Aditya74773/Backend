@@ -5,6 +5,15 @@ const dotenv = require("dotenv").config()
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser")
+
+// Validate required environment variables
+if (!process.env.MONGO_URI) {
+    console.error("ERROR: MONGO_URI environment variable is not set");
+}
+if (!process.env.JWT_SECRET_KEY) {
+    console.error("ERROR: JWT_SECRET_KEY environment variable is not set");
+}
+
 const userRoutes = require("./routes/user.routes")
 const postRoutes = require("./routes/post.routes")
 const profileRoutes = require("./routes/profile.routes");
@@ -26,7 +35,7 @@ app.use(cookieParser());
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     console.log("Connected to MONGODB")
-}).catch((err) => console.log("err", err.message))
+}).catch((err) => console.log("MongoDB Connection Error:", err.message))
 
 // api
 
