@@ -45,7 +45,7 @@ app.use("/api", profileRoutes)
 app.use("/api", CommentRoutes)
 
 app.get("/", (req, res) => {
-    return res.send("<h1>Linkedin Backend Project!</h1>")
+    return res.send("<h1>Linkedin Backend Project - Working!</h1>")
 })
 // register -> (POST) http://localhost:4000/api/register
 
