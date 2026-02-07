@@ -12,7 +12,10 @@ const signup = async (req, res) => {
         password: 'abcd1234'
         */
 
-        const { username, email, password } = req.body;
+        const { username, email, password } = req.body || {};
+        if (!req.body) {
+            return res.status(400).json({ message: 'Request body is required' });
+        }
         if(!username || !email || !password){
             return  res.status(400).json({
                 message: 'All fields are required'
@@ -59,7 +62,11 @@ const signin = async (req, res) => {
             return res.status(500).json({ message: "Server configuration error" });
         }
 
-        const { email, password } = req.body;
+        const { email, password } = req.body || {};
+
+        if (!req.body) {
+            return res.status(400).json({ message: 'Request body is required' });
+        }
 
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
