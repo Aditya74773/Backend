@@ -23,17 +23,20 @@ const app = express();
 // application-level middleware
 // parse the req.body back to json
 // middleware
-// allow both production frontend and local dev origin for CORS
+// allow production frontend and local development origins for CORS
 const allowedOrigins = [
-  "https://frontend-vgi4.vercel.app",
-  "http://localhost:5173"
+    "https://frontend-vgi4.vercel.app"
 ];
+
+const isLocalDevOrigin = (origin) => {
+        return /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+};
 
 app.use(cors({
     origin: function (origin, callback) {
         // allow requests with no origin (like mobile apps or curl)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        if (allowedOrigins.indexOf(origin) !== -1 || isLocalDevOrigin(origin)) {
             return callback(null, true);
         }
         return callback(new Error('CORS policy: This origin is not allowed.'), false);

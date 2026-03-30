@@ -3,6 +3,17 @@ const User = require('../models/User.model');
 const bcrypt = require('bcryptjs');
 const jwt =  require('jsonwebtoken');
 
+const getAuthCookieOptions = () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    return {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
+        maxAge: 60 * 60 * 1000
+    };
+};
+
 // controller for signup
 const signup = async (req, res) => {
     try {
@@ -89,7 +100,7 @@ const signin = async (req, res) => {
         } 
         const token = await jwt.sign(tokenData, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
         console.log("Generated Token:", token);
-        res.cookie("access_token", token, {httpOnly: true});
+        res.cookie("access_token", token, getAuthCookieOptions());
 
         const loginTime = new Date();
         user.lastLogin = loginTime;
