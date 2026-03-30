@@ -28,15 +28,29 @@ const allowedOrigins = [
     "https://frontend-vgi4.vercel.app"
 ];
 
+const allowedOriginPatterns = [
+    /^https:\/\/frontend-vgi4.*\.vercel\.app$/
+];
+
 const isLocalDevOrigin = (origin) => {
         return /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
 };
 
+const isAllowedOrigin = (origin) => {
+    if (!origin) {
+        return true;
+    }
+
+    if (allowedOrigins.includes(origin) || isLocalDevOrigin(origin)) {
+        return true;
+    }
+
+    return allowedOriginPatterns.some((pattern) => pattern.test(origin));
+};
+
 app.use(cors({
     origin: function (origin, callback) {
-        // allow requests with no origin (like mobile apps or curl)
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) !== -1 || isLocalDevOrigin(origin)) {
+        if (isAllowedOrigin(origin)) {
             return callback(null, true);
         }
         return callback(new Error('CORS policy: This origin is not allowed.'), false);
