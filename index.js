@@ -20,6 +20,36 @@ const profileRoutes = require("./routes/profile.routes");
 const CommentRoutes = require("./routes/comment.routes")
 const app = express();
 
+let isMongoConnected = false;
+let mongoConnectionPromise = null;
+
+const connectToMongoDB = async () => {
+    if (isMongoConnected) {
+        return;
+    }
+
+    if (mongoConnectionPromise) {
+        await mongoConnectionPromise;
+        return;
+    }
+
+    if (!process.env.MONGO_URI) {
+        throw new Error("MONGO_URI environment variable is not set");
+    }
+
+    mongoConnectionPromise = mongoose.connect(process.env.MONGO_URI)
+        .then(() => {
+            isMongoConnected = true;
+            console.log("Connected to MONGODB");
+        })
+        .catch((err) => {
+            mongoConnectionPromise = null;
+            throw err;
+        });
+
+    await mongoConnectionPromise;
+};
+
 // application-level middleware
 // parse the req.body back to json
 // middleware
@@ -60,12 +90,20 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
-// mongodb -> connection string
 
-mongoose.connect(process.env.MONGO_URI)
-.then(() => {
-    console.log("Connected to MONGODB")
-}).catch((err) => console.log("MongoDB Connection Error:", err.message))
+// Ensure MongoDB connection before handling API routes.
+app.use(async (req, res, next) => {
+    try {
+        await connectToMongoDB();
+        next();
+    } catch (err) {
+        console.error("MongoDB Connection Error:", err.message);
+        return res.status(500).json({
+            message: "Server error",
+            error: "Database connection failed"
+        });
+    }
+});
 
 // api
 
@@ -85,6 +123,8 @@ module.exports = app
 
 // For local development
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => {
-    console.log("Server is running on port ", PORT)
-})
+if (process.env.VERCEL !== "1") {
+    app.listen(PORT, () => {
+        console.log("Server is running on port ", PORT)
+    });
+}
